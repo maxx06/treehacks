@@ -2,8 +2,9 @@ import { spawn } from 'node:child_process';
 
 export const runCommand = ({ command, cwd, env, onLine }) =>
   new Promise((resolve, reject) => {
-    const shell = process.platform === 'win32' ? 'cmd' : 'bash';
-    const args = process.platform === 'win32' ? ['/c', command] : ['-lc', command];
+    const shell = process.platform === 'win32' ? 'cmd' : '/bin/bash';
+    const args =
+      process.platform === 'win32' ? ['/c', command] : ['--noprofile', '--norc', '-lc', command];
 
     const proc = spawn(shell, args, {
       cwd,

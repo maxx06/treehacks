@@ -3,7 +3,7 @@
 This scaffold gives you a quick MVP for "start a background coding task from Slack and get a PR."
 
 ## What’s included
-- Slack slash command bot: `/agent <repo> <task>`
+- Slack slash command bot: `/agent <task>`
 - Orchestrator API: session creation, status tracking, and event log
 - In-process queue/runner: clones repo, runs OpenCode, commits, pushes, opens PR
 - Local JSON store in `data/sessions.json`
@@ -19,7 +19,8 @@ This scaffold gives you a quick MVP for "start a background coding task from Sla
 5. Start Slack bot (new terminal)
    - `npm run bot`
 6. In Slack, run:
-   - `/agent owner/repo update auth middleware to handle token refresh`
+   - `/agent update auth middleware to handle token refresh`
+   - Or in a channel: `@DogWalker update auth middleware to handle token refresh`
 
 ## Required env vars
 - `SLACK_BOT_TOKEN`
@@ -29,6 +30,7 @@ This scaffold gives you a quick MVP for "start a background coding task from Sla
 - `GITHUB_BASE_BRANCH` (default `main`)
 - `OPENCODE_COMMAND_TEMPLATE` (command string used to run coding task inside repo)
 - `GIT_USER_NAME` and `GIT_USER_EMAIL` (git commit identity)
+- `DEFAULT_REPO` (hardcoded target repo, e.g. `owner/repo`)
 
 ## Configure OpenCode command
 Set `OPENCODE_COMMAND_TEMPLATE` to a shell command that executes your coding agent in the checked-out repo.

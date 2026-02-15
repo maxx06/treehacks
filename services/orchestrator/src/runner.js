@@ -1,6 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { createPullRequest } from './github.js';
+import {
+  createPullRequest,
+  getDefaultBranch,
+  branchExists,
+} from './github.js';
 import { runCommand } from './exec.js';
 import { config } from './config.js';
 import { runOpenCodeTask } from './opencode.js';
@@ -103,6 +107,36 @@ export const runSession = async (sessionId) => {
     });
 
     setSessionStatus(sessionId, 'creating_pr', 'Opening pull request.');
+    let baseBranch = (config.githubBaseBranch || '').trim();
+    const configuredBase = baseBranch;
+
+    if (baseBranch) {
+      const exists = await branchExists({
+        token,
+        owner: session.owner,
+        repo: session.repoName,
+        branch: baseBranch,
+      });
+      if (!exists) {
+        appendEvent(
+          sessionId,
+          'lifecycle',
+          `Configured base branch '${configuredBase}' not found; resolving from GitHub default branch.`
+        );
+        baseBranch = await getDefaultBranch({
+          token,
+          owner: session.owner,
+          repo: session.repoName,
+        });
+      }
+    } else {
+      baseBranch = await getDefaultBranch({
+        token,
+        owner: session.owner,
+        repo: session.repoName,
+      });
+    }
+
     const prBody = [
       `## Session ${session.id}`,
       '',
@@ -123,7 +157,7 @@ export const runSession = async (sessionId) => {
       title: `Agent task: ${session.prompt.slice(0, 80)}`,
       body: prBody,
       head: branch,
-      base: config.githubBaseBranch,
+      base: baseBranch,
     });
 
     setSessionPr(sessionId, prUrl);
